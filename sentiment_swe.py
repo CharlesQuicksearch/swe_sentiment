@@ -1,11 +1,14 @@
+import json
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from scipy.special import softmax
 
-model = AutoModelForSequenceClassification.from_pretrained("KBLab/KBLab_Swe_Model")
-tokenizer = AutoTokenizer.from_pretrained("KBLab/KBLab_Swe_Tokenizer")
+with open("model_config.json", "r") as f:
+    config = json.load(f)
 
+model = AutoModelForSequenceClassification.from_pretrained(config.get("model_path"))
+tokenizer = AutoTokenizer.from_pretrained(config.get("tokenizer_path"))
 
-async def swe_review_rating(input):
+async def rate(input):
     tokens = tokenizer.encode(input, return_tensors="pt")
     result = model(tokens)
     output_np = result.logits[0].detach().cpu().numpy()
